@@ -1,2 +1,2 @@
-# Know-My-Link
-Application that would generate a summery of a linked in profile
+# Find my guy
+Application that would take in pictures of your property damage and description, and gives you self fixing advice. 
