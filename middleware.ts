@@ -4,17 +4,17 @@ import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
   // If user is not signed in and the current path is not /auth
   // redirect the user to /auth
-  if (!session && request.nextUrl.pathname !== '/auth') {
-    return NextResponse.redirect(new URL('/auth', request.url));
+  if (!user && request.nextUrl.pathname !== '/auth') {
+    return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
   // If user is signed in and the current path is /auth
   // redirect the user to /
-  if (session && request.nextUrl.pathname === '/auth') {
+  if (user && request.nextUrl.pathname === '/auth') {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
