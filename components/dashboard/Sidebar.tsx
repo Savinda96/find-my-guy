@@ -7,12 +7,9 @@ import {
   Home, 
   FileText, 
   Upload, 
-  Tag, 
-  Search, 
-  Settings,
-  Users,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  MessageCircle
 } from 'lucide-react';
 import { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -35,6 +32,11 @@ export default function Sidebar() {
       icon: <Home size={20} />,
     },
     {
+      name: 'Chat',
+      href: '/dashboard/chat',
+      icon: <MessageCircle size={20} />,
+    },
+    {
       name: 'CV Library',
       href: '/dashboard/cvs',
       icon: <FileText size={20} />,
@@ -43,26 +45,6 @@ export default function Sidebar() {
       name: 'Upload CV',
       href: '/dashboard/upload',
       icon: <Upload size={20} />,
-    },
-    {
-      name: 'Tags',
-      href: '/dashboard/tags',
-      icon: <Tag size={20} />,
-    },
-    {
-      name: 'Search',
-      href: '/dashboard/search',
-      icon: <Search size={20} />,
-    },
-    {
-      name: 'Profiles',
-      href: '/dashboard/profiles',
-      icon: <Users size={20} />,
-    },
-    {
-      name: 'Settings',
-      href: '/dashboard/settings',
-      icon: <Settings size={20} />,
     },
   ];
 
