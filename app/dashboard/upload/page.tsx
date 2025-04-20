@@ -4,7 +4,6 @@ import { getRemainingUploads } from './actions';
 import UploadForm from '@/components/dashboard/UploadForm';
 
 export default async function UploadPage() {
-  const supabase = await createClient();
   const remainingUploads = await getRemainingUploads();
   
   return (
