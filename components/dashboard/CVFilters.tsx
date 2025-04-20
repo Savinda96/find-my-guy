@@ -14,25 +14,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
+import { CVFilters as Filters } from '@/app/dashboard/cvs/actions';
 
 interface FilterOption {
   value: string;
   label: string;
 }
 
-interface Filters {
-  q: string;
-  tag: string;
-  skill: string;
-  experience: string;
-  sort: string;
-}
-
 interface CVFiltersProps {
   currentFilters: Filters;
+  availableFilters: {
+    skills: string[];
+    tags: string[];
+  };
 }
 
-export default function CVFilters({ currentFilters }: CVFiltersProps) {
+export default function CVFilters({ currentFilters, availableFilters }: CVFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [filters, setFilters] = useState<Filters>({

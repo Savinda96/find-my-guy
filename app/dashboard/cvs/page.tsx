@@ -13,104 +13,22 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Upload, Download, Eye, Search, Filter } from 'lucide-react';
 import CVFilters from '@/components/dashboard/CVFilters';
-
-interface SearchParams {
-  q?: string;
-  tag?: string;
-  skill?: string;
-  experience?: string;
-  sort?: string;
-}
+import { getCVs, getCVCount, getAvailableFilters, type CVFilters as Filters } from './actions';
 
 interface PageProps {
-  searchParams: SearchParams;
-}
-
-interface Profile {
-  id: string;
-  cv_id: string;
-  full_name: string | null;
-  title: string | null;
-  skills: string[] | null;
-  years_experience: number | null;
-  experience: any[] | null;
-}
-
-interface CV {
-  id: string;
-  name: string;
-  created_at: string;
-  processed: boolean;
-  public_url: string;
-  tags: string[] | null;
-  profiles?: Profile;
+  searchParams: Filters;
 }
 
 export default async function CVLibrary({ searchParams }: PageProps) {
   const params = await Promise.resolve(searchParams);
   const supabase = await createClient();
   
-  // Parse and apply filters
-  const { 
-    q = '', 
-    tag = '', 
-    skill = '', 
-    experience = '',
-    sort = 'newest'
-  } = params;
-  
-  // Build query based on filters
-  let query = supabase.from('cvs').select(`
-    *,
-    profiles(*)
-  `);
-  
-  // Apply search if provided
-  if (q) {
-    query = query.or(`
-      name.ilike.%${q}%,
-      profiles.full_name.ilike.%${q}%,
-      profiles.skills.cs.{${q}}
-    `);
-  }
-  
-  // Apply tag filter
-  if (tag) {
-    query = query.contains('tags', [tag]);
-  }
-  
-  // Apply skill filter
-  if (skill) {
-    query = query.contains('profiles.skills', [skill]);
-  }
-  
-  // Apply experience filter
-  if (experience) {
-    const [min, max] = experience.split('-').map(Number);
-    query = query.gte('profiles.years_experience', min);
-    if (max) {
-      query = query.lte('profiles.years_experience', max);
-    }
-  }
-  
-  // Apply sorting
-  if (sort === 'newest') {
-    query = query.order('created_at', { ascending: false });
-  } else if (sort === 'oldest') {
-    query = query.order('created_at', { ascending: true });
-  } else if (sort === 'name_az') {
-    query = query.order('name', { ascending: true });
-  } else if (sort === 'name_za') {
-    query = query.order('name', { ascending: false });
-  }
-  
-  // Execute query
-  const { data: cvs, error } = await query;
-  
-  // Get count for pagination info
-  const { count } = await supabase
-    .from('cvs')
-    .select('*', { count: 'exact', head: true });
+  // Get data using actions
+  const [cvs, count, availableFilters] = await Promise.all([
+    getCVs(params),
+    getCVCount(),
+    getAvailableFilters()
+  ]);
   
   return (
     <div className="space-y-6">
@@ -133,7 +51,7 @@ export default async function CVLibrary({ searchParams }: PageProps) {
             <div>
               <CardTitle>Your CVs</CardTitle>
               <CardDescription>
-                {count || 0} total CVs in your library
+                {count} total CVs in your library
               </CardDescription>
             </div>
             
@@ -151,13 +69,8 @@ export default async function CVLibrary({ searchParams }: PageProps) {
         </CardHeader>
         <CardContent>
           <CVFilters 
-            currentFilters={{
-              q,
-              tag,
-              skill,
-              experience,
-              sort
-            }}
+            currentFilters={params}
+            availableFilters={availableFilters}
           />
           
           {cvs && cvs.length > 0 ? (
@@ -260,7 +173,7 @@ export default async function CVLibrary({ searchParams }: PageProps) {
               </svg>
               <h3 className="mt-2 text-sm font-semibold text-gray-900">No CVs found</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {q || tag || skill || experience
+                {params.q || params.tag || params.skill || params.experience
                   ? 'Try adjusting your search filters'
                   : 'Get started by uploading your first CV'}
               </p>
